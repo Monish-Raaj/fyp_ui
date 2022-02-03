@@ -122,8 +122,23 @@
                     <b v-if="selectedFeature === feature">{{ feature }}</b>
                     <span v-else>{{ feature }}</span>
                   </v-chip>
-
+                  <!-- <div id="card">
+                    <div id="chart">
+                      <apexchart
+                        type="radialBar"
+                        height="350"
+                        :options="chartOptions"
+                        :series="[75]"
+                      ></apexchart>
+                    </div>
+                  </div> -->
                   <v-simple-table v-if="selectedFeature">
+                    <apexchart
+                      width="500"
+                      type="radialBar"
+                      :options="apexChartOptions.chartOptions"
+                      :series="apexChartOptions.series"
+                    ></apexchart>
                     <template v-slot:default>
                       <thead>
                         <tr>
@@ -158,12 +173,14 @@
 <script>
 import axios from "axios";
 import PieChart from "./PieChart.js";
+import VueApexCharts from "vue-apexcharts";
 
 export default {
   name: "App",
 
   components: {
     PieChart,
+    apexchart: VueApexCharts,
   },
 
   data: () => ({
@@ -181,18 +198,97 @@ export default {
     chartData1: require("./chart1Init.json"),
     chartData2: require("./chart1Init.json"),
     panel: [0, 1, 2],
+    apexChartOptions: {
+      chartOptions: {
+        chart: {
+          id: "vuechart-example",
+        },
+        labels: ["Percent"],
+
+        plotOptions: {
+          radialBar: {
+            startAngle: -135,
+            endAngle: 225,
+            hollow: {
+              margin: 0,
+              size: "70%",
+              background: "#fff",
+              image: undefined,
+              imageOffsetX: 0,
+              imageOffsetY: 0,
+              position: "front",
+              dropShadow: {
+                enabled: true,
+                top: 3,
+                left: 0,
+                blur: 4,
+                opacity: 0.24,
+              },
+            },
+            track: {
+              background: "#fff",
+              strokeWidth: "67%",
+              margin: 0, // margin is in pixels
+              dropShadow: {
+                enabled: true,
+                top: -3,
+                left: 0,
+                blur: 4,
+                opacity: 0.35,
+              },
+            },
+
+            dataLabels: {
+              show: true,
+              name: {
+                offsetY: -10,
+                show: true,
+                color: "#888",
+                fontSize: "17px",
+              },
+              value: {
+                formatter: function (val) {
+                  return parseInt(val);
+                },
+                color: "#111",
+                fontSize: "36px",
+                show: true,
+              },
+            },
+          },
+        },
+        fill: {
+          type: "gradient",
+          gradient: {
+            shade: "dark",
+            type: "horizontal",
+            shadeIntensity: 0.5,
+            gradientToColors: ["#ABE5A1"],
+            inverseColors: true,
+            opacityFrom: 1,
+            opacityTo: 1,
+            stops: [0, 100],
+          },
+        },
+
+        stroke: {
+          lineCap: "round",
+        },
+      },
+      series: [30],
+    },
   }),
   methods: {
     async submit() {
       try {
         this.loading = true;
-        let res = {}
-        res.data=require("./res.json");
+        let res = {};
+        res.data = require("./res.json");
 
-        if(parseInt(res.data.Fake)>parseInt(res.data.Real)){
-          let temp=res.data.Fake;
-          res.data.Fake=res.data.Real;
-          res.data.Real=temp;
+        if (parseInt(res.data.Fake) > parseInt(res.data.Real)) {
+          let temp = res.data.Fake;
+          res.data.Fake = res.data.Real;
+          res.data.Real = temp;
         }
         for (let feature in res.data["featureSummary"]) {
           let temp = [];
@@ -214,6 +310,12 @@ export default {
     },
     selectFeature(feature) {
       this.selectedFeature = feature;
+      let { positiveCount, negativeCount } =
+        this.responseData.featureSummary[feature];
+        console.log(positiveCount,negativeCount);
+      if (positiveCount + negativeCount == 0) this.series = [0];
+      else this.series = [parseInt((positiveCount / (positiveCount + negativeCount))*100)];
+      console.log(parseInt((positiveCount / (positiveCount + negativeCount))*100))
     },
     getHighlightedText(text, highlight) {
       // Split on highlight term and include term into parts, ignore case
