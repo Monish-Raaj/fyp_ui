@@ -5,9 +5,15 @@
     </v-app-bar>
 
     <v-main>
-      <v-row>
-        <v-spacer></v-spacer>
-        <div v-if="!responseData">
+      <v-row
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+        "
+      >
+        <div v-if="!responseData" class="animate__animated animate__zoomInUp">
           <v-card
             elevation="2"
             light
@@ -56,36 +62,33 @@
             <v-divider class="mx-4"></v-divider>
           </v-card>
         </div>
-        <div v-else>
-          <v-card
-            elevation="2"
-            light
-            outlined
-            shaped
-            max-width="1200"
-            min-width="1200"
-            class="pa-10 ma-10"
-          >
+        <div v-else class="animate__animated animate__backInDown">
+          <v-spacer></v-spacer>
+          <v-card elevation="2" light outlined shaped class="pa-10 ma-10">
             <v-card-title>
               <h1 class="text-center" style="width: 100%">Review Analysis</h1>
             </v-card-title>
             <v-divider color="red"></v-divider>
-            <div class="small">
-              <pie-chart
-                :data="chartData1"
-                :options="chartOptions"
-                width="100px"
-                height="100px"
-              ></pie-chart>
-            </div>
-            <div class="small">
-              <pie-chart
-                :data="chartData2"
-                :options="chartOptions"
-                width="100px"
-                height="100px"
-              ></pie-chart>
-            </div>
+            <v-container class="grey lighten-5">
+              <v-row justify="center">
+                <v-col cols="12" md="6" class="d-flex justify-center">
+                  <div class="small">
+                    <pie-chart
+                      :data="chartData1"
+                      :options="chartOptions"
+                    ></pie-chart>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6" class="d-flex justify-center">
+                  <div class="small">
+                    <pie-chart
+                      :data="chartData2"
+                      :options="chartOptions"
+                    ></pie-chart>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-container>
             <v-expansion-panels multiple v-model="panel">
               <v-expansion-panel>
                 <v-expansion-panel-header>
@@ -145,8 +148,8 @@
               </v-expansion-panel>
             </v-expansion-panels>
           </v-card>
+          <v-spacer></v-spacer>
         </div>
-        <v-spacer></v-spacer>
       </v-row>
     </v-main>
   </v-app>

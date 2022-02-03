@@ -1,17 +1,19 @@
-import Vue from 'vue'
-import App from './App.vue'
-import vuetify from './plugins/vuetify'
+import Vue from "vue";
+import App from "./App.vue";
 
-Vue.config.productionTip = false
+import "animate.css/animate.min.css";
+import vuetify from "./plugins/vuetify";
 
-import axios from 'axios'
+Vue.config.productionTip = false;
 
-Vue.prototype.$http=axios.create({
-  baseURL:'http://localhost:5000',
-  timeout: -1
-})
+import axios from "axios";
+
+Vue.prototype.$http = axios.create({
+  baseURL: "http://localhost:5000",
+  timeout: -1,
+});
 
 new Vue({
   vuetify,
-  render: h => h(App)
-}).$mount('#app')
+  render: (h) => h(App),
+}).$mount("#app");
