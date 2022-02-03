@@ -1,0 +1,12 @@
+{
+    "labels": ["Fake", "Real"],
+    "datasets": [
+      {
+        "backgroundColor": [
+          "#FF0000",
+          "#1E9600"
+        ],
+        "data": [1, 2]
+      }
+    ]
+  }
