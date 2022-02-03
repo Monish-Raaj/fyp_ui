@@ -1,6 +1,18 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app color="primary" dark class="navbar-custom-bg">
+      <v-btn
+        elevation="3"
+        large
+        raised
+        color="purple"
+        @click="responseData=''"
+        class="ml-5"
+        dark
+        v-if="responseData"
+        >
+        <v-icon dark> mdi-arrow-left </v-icon>
+      </v-btn>
       <v-spacer></v-spacer>
     </v-app-bar>
 
@@ -13,9 +25,19 @@
           width: 100%;
         "
       >
-        <div v-if="!responseData" class="animate__animated animate__zoomInUp">
+        <div
+          v-if="!responseData && !loading"
+          class="animate__animated animate__zoomInUp"
+          style="
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            -ms-transform: translateY(-50%);
+            transform: translateY(-50%);
+          "
+        >
           <v-card
-            elevation="2"
+            elevation="3"
             light
             outlined
             shaped
@@ -45,7 +67,7 @@
                   v-model="url"
                 ></v-text-field>
                 <v-btn
-                  elevation="2"
+                  elevation="3"
                   large
                   raised
                   color="purple"
@@ -62,9 +84,38 @@
             <v-divider class="mx-4"></v-divider>
           </v-card>
         </div>
-        <div v-else class="animate__animated animate__backInDown">
+        <div
+          v-if="loading"
+          class="animate__animated animate__zoomInUp"
+          style="
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            -ms-transform: translateY(-50%);
+            transform: translateY(-50%);
+          "
+        >
+          <img
+            alt=""
+            width="700"
+            height="249"
+            role="presentation"
+            src="https://miro.medium.com/max/700/1*CsJ05WEGfunYMLGfsT2sXA.gif"
+            srcset="
+              https://miro.medium.com/max/276/1*CsJ05WEGfunYMLGfsT2sXA.gif 276w,
+              https://miro.medium.com/max/552/1*CsJ05WEGfunYMLGfsT2sXA.gif 552w,
+              https://miro.medium.com/max/640/1*CsJ05WEGfunYMLGfsT2sXA.gif 640w,
+              https://miro.medium.com/max/700/1*CsJ05WEGfunYMLGfsT2sXA.gif 700w
+            "
+            sizes="700px"
+          />
+        </div>
+        <div
+          v-if="!loading && responseData"
+          class="animate__animated animate__backInDown"
+        >
           <v-spacer></v-spacer>
-          <v-card elevation="2" light outlined shaped class="pa-10 ma-10">
+          <v-card elevation="3" light outlined shaped class="pa-10 ma-10">
             <v-card-title>
               <h1 class="text-center" style="width: 100%">Review Analysis</h1>
             </v-card-title>
@@ -132,17 +183,21 @@
                       ></apexchart>
                     </div>
                   </div> -->
+
+                  <apexchart
+                    width="500"
+                    type="radialBar"
+                    :options="apexChartOptions.chartOptions"
+                    :series="apexChartOptions.series"
+                    v-if="selectedFeature"
+                  ></apexchart>
                   <v-simple-table v-if="selectedFeature">
-                    <apexchart
-                      width="500"
-                      type="radialBar"
-                      :options="apexChartOptions.chartOptions"
-                      :series="apexChartOptions.series"
-                    ></apexchart>
                     <template v-slot:default>
                       <thead>
                         <tr>
-                          <!-- <th class="text-left"><h1>Reviews with selected feature</h1></th> -->
+                          <th class="text-left">
+                            <h1>Reviews with selected feature</h1>
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -185,6 +240,7 @@ export default {
 
   data: () => ({
     url: null,
+    chartKey: 0,
     rules: [(value) => !!value || "Required."],
     loading: false,
     selectedFeature: null,
@@ -203,7 +259,7 @@ export default {
         chart: {
           id: "vuechart-example",
         },
-        labels: ["Percent"],
+        labels: ["Score"],
 
         plotOptions: {
           radialBar: {
@@ -312,10 +368,18 @@ export default {
       this.selectedFeature = feature;
       let { positiveCount, negativeCount } =
         this.responseData.featureSummary[feature];
-        console.log(positiveCount,negativeCount);
-      if (positiveCount + negativeCount == 0) this.series = [0];
-      else this.series = [parseInt((positiveCount / (positiveCount + negativeCount))*100)];
-      console.log(parseInt((positiveCount / (positiveCount + negativeCount))*100))
+      console.log(positiveCount, negativeCount);
+      if (positiveCount + negativeCount == 0)
+        this.apexChartOptions.series = [0];
+      else
+        this.apexChartOptions.series = [
+          parseInt((positiveCount / (positiveCount + negativeCount)) * 100),
+        ];
+      console.log(
+        parseInt((positiveCount / (positiveCount + negativeCount)) * 100)
+      );
+
+      this.chartKey = this.chartKey === 0 ? 1 : 0;
     },
     getHighlightedText(text, highlight) {
       // Split on highlight term and include term into parts, ignore case
@@ -333,13 +397,27 @@ export default {
 </script>
 
 <style scoped>
-/* #app {
-  background: url(./assets/bg.jpeg) no-repeat center center fixed !important;
-  background-size: cover;
-} */
+#app {
+  background-color: #e5e5f7;
+  opacity: 0.8;
+  background: linear-gradient(135deg, #d9dbfd55 25%, transparent 25%) -10px 0/
+      20px 20px,
+    linear-gradient(225deg, #d9dbfd 25%, transparent 25%) -10px 0/ 20px 20px,
+    linear-gradient(315deg, #d9dbfd55 25%, transparent 25%) 0px 0/ 20px 20px,
+    linear-gradient(45deg, #d9dbfd 25%, #e5e5f7 25%) 0px 0/ 20px 20px;
+}
 
 .small {
   max-width: 400px;
   margin: 10px;
+}
+
+.navbar-custom-bg {
+  background-image: linear-gradient(
+      45deg,
+      rgba(134, 205, 255, 0.82),
+      rgb(0, 110, 253)
+    ),
+    url("https://www.elegantthemes.com/blog/wp-content/uploads/2017/05/design-review.png");
 }
 </style>
