@@ -1,0 +1,12 @@
+{
+    "labels": ["Positive", "Negative"],
+    "datasets": [
+      {
+        "backgroundColor": [
+          "#0000FF",
+          "#FF3300"
+        ],
+        "data": [1, 2]
+      }
+    ]
+  }

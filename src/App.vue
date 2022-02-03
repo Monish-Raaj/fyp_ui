@@ -6,11 +6,11 @@
         large
         raised
         color="purple"
-        @click="responseData=''"
+        @click="responseData = ''"
         class="ml-5"
         dark
         v-if="responseData"
-        >
+      >
         <v-icon dark> mdi-arrow-left </v-icon>
       </v-btn>
       <v-spacer></v-spacer>
@@ -121,7 +121,7 @@
             </v-card-title>
             <v-divider color="red"></v-divider>
             <v-container class="grey lighten-5">
-              <v-row justify="center">
+              <v-row justify="center" v-if="responseData">
                 <v-col cols="12" md="6" class="d-flex justify-center">
                   <div class="small">
                     <pie-chart
@@ -145,7 +145,7 @@
                 <v-expansion-panel-header>
                   <h1>Positive Review Summary</h1>
                 </v-expansion-panel-header>
-                <v-expansion-panel-content>
+                <v-expansion-panel-content class="pa-5">
                   {{ responseData.PosSummary }}
                 </v-expansion-panel-content>
               </v-expansion-panel>
@@ -153,7 +153,7 @@
                 <v-expansion-panel-header>
                   <h1>Negative Review Summary</h1>
                 </v-expansion-panel-header>
-                <v-expansion-panel-content>
+                <v-expansion-panel-content class="pa-5">
                   {{ responseData.NegSummary }}
                 </v-expansion-panel-content>
               </v-expansion-panel>
@@ -161,7 +161,7 @@
                 <v-expansion-panel-header>
                   <h1>Feature Based Summary</h1>
                 </v-expansion-panel-header>
-                <v-expansion-panel-content>
+                <v-expansion-panel-content class="pa-5">
                   <v-chip
                     class="ma-2"
                     v-for="(feature, index) in Object.keys(
@@ -183,7 +183,8 @@
                       ></apexchart>
                     </div>
                   </div> -->
-
+                  <v-row>
+                    <v-spacer></v-spacer>
                   <apexchart
                     width="500"
                     type="radialBar"
@@ -191,6 +192,9 @@
                     :series="apexChartOptions.series"
                     v-if="selectedFeature"
                   ></apexchart>
+                    <v-spacer></v-spacer>
+
+                  </v-row>
                   <v-simple-table v-if="selectedFeature">
                     <template v-slot:default>
                       <thead>
@@ -252,7 +256,7 @@ export default {
       },
     },
     chartData1: require("./chart1Init.json"),
-    chartData2: require("./chart1Init.json"),
+    chartData2: require("./chart2Init.json"),
     panel: [0, 1, 2],
     apexChartOptions: {
       chartOptions: {
@@ -340,12 +344,16 @@ export default {
         this.loading = true;
         let res = {};
         res.data = require("./res.json");
-
+        this.chartData2.datasets[0].data[0] = res.data.PosCount
+        this.chartData2.datasets[0].data[1] = res.data.NegCount
         if (parseInt(res.data.Fake) > parseInt(res.data.Real)) {
           let temp = res.data.Fake;
           res.data.Fake = res.data.Real;
           res.data.Real = temp;
         }
+
+        this.chartData1.datasets[0].data[0] = res.data.Fake
+        this.chartData1.datasets[0].data[1] = res.data.Real
         for (let feature in res.data["featureSummary"]) {
           let temp = [];
           for (let review of res.data["featureSummary"][feature]["reviews"]) {
