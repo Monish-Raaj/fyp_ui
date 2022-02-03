@@ -110,11 +110,37 @@
                 <v-expansion-panel-content>
                   <v-chip
                     class="ma-2"
-                    v-for="(feature,index) in Object.keys(responseData.featureSummary)"
+                    v-for="(feature, index) in Object.keys(
+                      responseData.featureSummary
+                    )"
                     :key="index"
+                    @click="selectFeature(feature)"
                   >
-                  {{feature}}
+                    <b v-if="selectedFeature === feature">{{ feature }}</b>
+                    <span v-else>{{ feature }}</span>
                   </v-chip>
+
+                  <v-simple-table v-if="selectedFeature">
+                    <template v-slot:default>
+                      <thead>
+                        <tr>
+                          <!-- <th class="text-left"><h1>Reviews with selected feature</h1></th> -->
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="(review, index) in responseData.featureSummary[
+                            selectedFeature
+                          ].reviews"
+                          :key="index"
+                        >
+                          <td>
+                            <div v-html="'<br/>' + review + '<br/><br/>'"></div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </template>
+                  </v-simple-table>
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-expansion-panels>
@@ -141,6 +167,7 @@ export default {
     url: null,
     rules: [(value) => !!value || "Required."],
     loading: false,
+    selectedFeature: null,
     responseData: null,
     chartOptions: {
       responsive: true,
@@ -150,18 +177,51 @@ export default {
     },
     chartData1: require("./chart1Init.json"),
     chartData2: require("./chart1Init.json"),
-    panel: [0,1,2],
+    panel: [0, 1, 2],
   }),
   methods: {
     async submit() {
       try {
         this.loading = true;
-        let res = require("./res.json");
-        this.responseData = res;
+        let res = {}
+        res.data=require("./res.json");
+
+        if(parseInt(res.data.Fake)>parseInt(res.data.Real)){
+          let temp=res.data.Fake;
+          res.data.Fake=res.data.Real;
+          res.data.Real=temp;
+        }
+        for (let feature in res.data["featureSummary"]) {
+          let temp = [];
+          for (let review of res.data["featureSummary"][feature]["reviews"]) {
+            temp.push(
+              this.getHighlightedText(
+                this.getHighlightedText(review, feature.split(" ")[0]),
+                feature.split(" ")[1]
+              )
+            );
+          }
+          res.data["featureSummary"][feature]["reviews"] = temp;
+        }
+        this.responseData = res.data;
       } catch (error) {
         alert(error);
       }
       this.loading = false;
+    },
+    selectFeature(feature) {
+      this.selectedFeature = feature;
+    },
+    getHighlightedText(text, highlight) {
+      // Split on highlight term and include term into parts, ignore case
+      let parts = text.split(new RegExp(`(${highlight})`, "gi"));
+      return parts
+        .map((part) =>
+          part.toLowerCase() === highlight.toLowerCase()
+            ? `<b style="background-color:yellow">${part}</b>`
+            : part
+        )
+        .join("");
     },
   },
 };
