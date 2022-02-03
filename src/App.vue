@@ -342,8 +342,9 @@ export default {
     async submit() {
       try {
         this.loading = true;
-        let res = {};
-        res.data = require("./res.json");
+        let res = await this.$http.get(`/db?url=${this.url}`);
+        // res.data = require("./res.json");
+
         this.chartData2.datasets[0].data[0] = res.data.PosCount
         this.chartData2.datasets[0].data[1] = res.data.NegCount
         if (parseInt(res.data.Fake) > parseInt(res.data.Real)) {
